@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kancy.district.mapper.DistrictAreaInfoMapper">
+    <sql id="tableName">
+        district_area_info
+    </sql>
+
+    <sql id="baseColumn">
+        id,code_type,code,address,parent_code,version,is_deleted,created_at,updated_at
+    </sql>
+
+</mapper>
