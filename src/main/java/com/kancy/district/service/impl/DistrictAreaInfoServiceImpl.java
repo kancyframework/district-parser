@@ -7,6 +7,7 @@ import com.kancy.district.dao.DistrictAreaInfoDao;
 import com.kancy.district.entity.DistrictAreaChangeInfo;
 import com.kancy.district.entity.DistrictAreaDetail;
 import com.kancy.district.entity.DistrictAreaInfo;
+import com.kancy.district.enums.AreaTypeEnum;
 import com.kancy.district.service.DistrictAreaInfoService;
 import com.kancy.district.service.parser.AreaData;
 import com.kancy.district.service.parser.DistrictFileParser;
@@ -37,6 +38,7 @@ public class DistrictAreaInfoServiceImpl implements DistrictAreaInfoService {
     @SneakyThrows
     @Override
     public void init() {
+
         districtAreaInfoDao.remove(Wrappers.lambdaQuery());
         districtAreaChangeInfoDao.remove(Wrappers.lambdaQuery());
         districtAreaDetailDao.remove(Wrappers.lambdaQuery());
@@ -79,6 +81,10 @@ public class DistrictAreaInfoServiceImpl implements DistrictAreaInfoService {
                 }
             }
         });
+
+        // xx地区改为xx市导致的行政区划改变
+        districtAreaChangeInfoList.addAll(findCityChangeInfos(districtAreaDetailList));
+
         // 补充特别行政区和台湾省
         districtAreaDetailList.add(initProvinceDistrictAreaDetail("710000",dataProperties));
         districtAreaDetailList.add(initProvinceDistrictAreaDetail("810000",dataProperties));
@@ -116,6 +122,69 @@ public class DistrictAreaInfoServiceImpl implements DistrictAreaInfoService {
         districtAreaDetailList.clear();
 
     }
+
+    /**
+     * xx地区改为xx市导致的行政区划改变
+     * @param districtAreaDetailList
+     * @return
+     */
+    private List<DistrictAreaChangeInfo> findCityChangeInfos(List<DistrictAreaDetail> districtAreaDetailList) {
+        Map<String, DistrictAreaDetail> nameIndexMap = new HashMap<>();
+        List<DistrictAreaDetail> districtAreas = new ArrayList<>();
+
+        // xx地区改名xx市
+        for (DistrictAreaDetail detail : districtAreaDetailList) {
+            nameIndexMap.put(String.format("pcd_%s_%s_%s", detail.getProvinceName(), detail.getCityName(), detail.getAreaName()), detail);
+            nameIndexMap.put(String.format("pc_%s_%s", detail.getProvinceName(), detail.getCityName()), detail);
+
+            if (detail.getCityName().endsWith("地区")){
+                districtAreas.add(detail);
+            }
+        }
+
+        Set<String> pcKeySets = new HashSet<>();
+        List<DistrictAreaChangeInfo> districtAreaChangeInfos = new ArrayList<>();
+        for (DistrictAreaDetail detail : districtAreas) {
+            String cityName = detail.getCityName();
+            String newName = String.format("%s市", cityName.substring(0, cityName.length()-2));
+            String pcdKey = String.format("pcd_%s_%s_%s", detail.getProvinceName(), newName, detail.getAreaName());
+            String pcKey = String.format("pc_%s_%s", detail.getProvinceName(), newName);
+
+            if (nameIndexMap.containsKey(pcKey) && !pcKeySets.contains(pcKey)){
+                DistrictAreaDetail districtAreaDetail = nameIndexMap.get(pcKey);
+                DistrictAreaChangeInfo districtAreaChangeInfo = new DistrictAreaChangeInfo();
+                districtAreaChangeInfo.setCode(detail.getCityCode());
+                districtAreaChangeInfo.setAddress(detail.getCityName());
+                districtAreaChangeInfo.setParentCode(detail.getProvinceCode());
+                districtAreaChangeInfo.setVersion(detail.getVersion());
+                districtAreaChangeInfo.setYear(detail.getYear());
+
+                districtAreaChangeInfo.setCodeType(AreaTypeEnum.CITY.name());
+                districtAreaChangeInfo.setNewestCode(districtAreaDetail.getCityCode());
+                districtAreaChangeInfo.setNewestAddress(districtAreaDetail.getCityName());
+                pcKeySets.add(pcKey);
+                districtAreaChangeInfos.add(districtAreaChangeInfo);
+            }
+
+            if (nameIndexMap.containsKey(pcdKey)){
+                DistrictAreaDetail districtAreaDetail = nameIndexMap.get(pcdKey);
+                DistrictAreaChangeInfo districtAreaChangeInfo = new DistrictAreaChangeInfo();
+                districtAreaChangeInfo.setCode(detail.getAreaCode());
+                districtAreaChangeInfo.setAddress(detail.getAreaName());
+                districtAreaChangeInfo.setParentCode(detail.getProvinceCode());
+                districtAreaChangeInfo.setVersion(detail.getVersion());
+                districtAreaChangeInfo.setYear(detail.getYear());
+
+                districtAreaChangeInfo.setCodeType(AreaTypeEnum.AREA.name());
+                districtAreaChangeInfo.setNewestCode(districtAreaDetail.getAreaCode());
+                districtAreaChangeInfo.setNewestAddress(districtAreaDetail.getAreaName());
+                districtAreaChangeInfos.add(districtAreaChangeInfo);
+            }
+        }
+
+        return districtAreaChangeInfos;
+    }
+
 
     private DistrictAreaDetail getDistrictAreaDetail(AreaData areaData, AreaData propertyAreaData, AreaData cityAreaData) {
         DistrictAreaDetail detail = new DistrictAreaDetail();

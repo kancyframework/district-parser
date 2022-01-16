@@ -1,9 +1,9 @@
 package com.kancy.district.dao;
 
-import lombok.extern.slf4j.Slf4j;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kancy.district.entity.DistrictAreaInfo;
 import com.kancy.district.mapper.DistrictAreaInfoMapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 /**
