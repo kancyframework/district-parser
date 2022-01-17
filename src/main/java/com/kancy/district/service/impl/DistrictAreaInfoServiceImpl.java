@@ -43,7 +43,7 @@ public class DistrictAreaInfoServiceImpl implements DistrictAreaInfoService {
         districtAreaChangeInfoDao.remove(Wrappers.lambdaQuery());
         districtAreaDetailDao.remove(Wrappers.lambdaQuery());
 
-        Map<String, List<AreaData>> dataProperties = DistrictFileParser.parseRangeDistrictFiles(1990);
+        Map<String, List<AreaData>> dataProperties = DistrictFileParser.parseRangeDistrictFiles(1999);
 
         // 变更的城市
         List<DistrictAreaChangeInfo> districtAreaChangeInfoList = new ArrayList<>();

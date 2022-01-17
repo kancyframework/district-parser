@@ -1,7 +1,6 @@
 ### 直辖市
 `上海市`, `北京市`, `重庆市`, `天津市`
 
-
 ### 自治区
 `内蒙古自治区`, `新疆维吾尔自治区`, `广西壮族自治区`, `宁夏回族自治区`, `西藏自治区`
 
@@ -133,7 +132,7 @@
 110101=东城区
 110102=西城区
 110109=门头沟区
-110107=石景山区
+110107=石景山区市辖区
 110108=海淀区
 120223=静海县
 120224=宝坻县
@@ -149,3 +148,6 @@
 ### 资料
 
 - [行政区划官网数据](http://www.mca.gov.cn/article/sj/xzqh/2020/)
+- [统计用区划代码](http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2021/index.html)
+- [数据抓取](https://github.com/modood/Administrative-divisions-of-China)
+- [最新行政区划](https://github.com/adyliu/china_area)
