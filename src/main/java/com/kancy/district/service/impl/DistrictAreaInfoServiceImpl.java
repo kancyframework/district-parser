@@ -69,6 +69,10 @@ public class DistrictAreaInfoServiceImpl implements DistrictAreaInfoService {
                 if (areaData.isArea()){
                     List<AreaData> cityAreaDatas = dataProperties.get(areaData.getParentCode());
                     List<AreaData> propertyAreaDatas = dataProperties.get(String.format("%s0000", areaData.getCode().substring(0,2)));
+                    // 直辖市，城市用直辖市填充
+                    if (Objects.isNull(cityAreaDatas) && propertyAreaDatas.get(0).isMunicipality()){
+                        cityAreaDatas = new ArrayList<>(propertyAreaDatas);
+                    }
                     // 城市不存在的，用县区代替
                     if (Objects.isNull(cityAreaDatas)){
                         cityAreaDatas = Collections.singletonList(areaData);
