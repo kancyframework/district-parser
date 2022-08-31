@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -90,6 +91,36 @@ public class DistrictFileParser {
     public static Map<String, List<AreaData>> parseRangeDistrictFiles(int startYear) throws IOException {
         return parseRangeDistrictFiles(startYear, startYear + 100);
     }
+
+
+    public static StringBuffer getAllLastAreaStringBuffer() throws Exception {
+        Properties allLastAreaProperties = DistrictFileParser.getAllLastAreaProperties();
+        TreeMap<Object, Object> dataMap = new TreeMap<>(allLastAreaProperties);
+        StringBuffer sb = new StringBuffer();
+        dataMap.forEach((k,v) -> {
+            sb.append(k).append("=").append(v).append("\r\n");
+        });
+        return sb;
+    }
+
+    public static Properties getAllLastAreaProperties() throws Exception {
+        int endYear = MIN_START_YEAR + 100;
+        Properties allLastAreaProperties = new Properties();
+        for (int year = MIN_START_YEAR; year < endYear; year++) {
+            String resourceName = String.format(PATH_FORMAT, year);
+            InputStream resourceAsStream = DistrictFileParser.class.getResourceAsStream(resourceName);
+            if (Objects.isNull(resourceAsStream)){
+                continue;
+            }
+
+            Properties properties = new Properties();
+            properties.load(new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8));
+            // 最新年份的覆盖历史的
+            allLastAreaProperties.putAll(properties);
+        }
+        return allLastAreaProperties;
+    }
+
     /**
      * 解析指定年份范围的行政区划文件
      * @param startYear
